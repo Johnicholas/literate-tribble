@@ -4,4 +4,7 @@ go 1.19
 
 replace johnicholas.com/orkes-interview/pkg/language => ./pkg/language
 
-require github.com/dghubble/trie v0.0.0-20220811160003-18e0eff3ca7b // indirect
+require (
+	github.com/dghubble/trie v0.0.0-20220811160003-18e0eff3ca7b // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
+)
