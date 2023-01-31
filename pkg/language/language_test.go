@@ -6,8 +6,15 @@ import (
 	"testing"
 )
 
-func TestSliceBased(t *testing.T) {
-	tests := []struct {
+var testCases []struct {
+	name     string
+	language []string
+	prefix   string
+	want     []string
+}
+
+func init() {
+	testCases = []struct {
 		name     string
 		language []string
 		prefix   string
@@ -28,9 +35,31 @@ func TestSliceBased(t *testing.T) {
 		prefix:   "x",
 		want:     []string{},
 	}}
-	for _, tt := range tests {
+}
+
+func TestSliceBased(t *testing.T) {
+	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			toTest := language.FreshSliceBased()
+			for _, word := range tt.language {
+				toTest.Add(word)
+			}
+			got := []string{}
+			completions := toTest.WordsStartingWith(tt.prefix)
+			for word := range completions {
+				got = append(got, word)
+			}
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("WordsStartingWith mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestTrieBased(t *testing.T) {
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			toTest := language.FreshTrieBased()
 			for _, word := range tt.language {
 				toTest.Add(word)
 			}

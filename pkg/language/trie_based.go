@@ -1,20 +1,24 @@
 package language
 
-import "github.com/dghubble/trie"
+import (
+	trie "github.com/tchap/go-patricia/v2/patricia"
+)
 
 type trieBasedLanguage struct {
-	underlying trie.Trier
+	underlying *trie.Trie
 }
 
 // Constructs and returns a fresh trie-based language
 func FreshTrieBased() *trieBasedLanguage {
 	return &trieBasedLanguage{
-		underlying: trie.NewRuneTrie(),
+		underlying: trie.NewTrie(),
 	}
 }
 
 func (t *trieBasedLanguage) Add(word string) {
-	t.underlying.Put(word, t)
+	// we (currently) do not have values associated with each word
+	dontCare := 1
+	t.underlying.Insert(trie.Prefix(word), dontCare)
 }
 
 func (t *trieBasedLanguage) WordsStartingWith(prefix string) <-chan string {
@@ -22,8 +26,8 @@ func (t *trieBasedLanguage) WordsStartingWith(prefix string) <-chan string {
 	go func() {
 		// This isn't quite right, because we are ignoring prefix.
 		// t.WalkPath(prefix, func(key string, value interface{}) error {
-		t.underlying.Walk(func(key string, value interface{}) error {
-			c <- key
+		t.underlying.VisitSubtree(trie.Prefix(prefix), func(key trie.Prefix, value trie.Item) error {
+			c <- string(key)
 			return nil
 		})
 		close(c)
